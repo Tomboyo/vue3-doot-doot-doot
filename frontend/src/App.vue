@@ -73,9 +73,10 @@ const currentRoute = computed(() => routes.find(route => route.href === location
 }
 
 .left {
-    padding-right: 1rem;
-    margin-right: 1rem;
-    border-right: 1px solid #999;
     flex-shrink: 0;
+}
+
+.right {
+    width: 100%;
 }
 </style>
