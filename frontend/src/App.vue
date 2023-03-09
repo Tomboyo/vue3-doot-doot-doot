@@ -28,19 +28,14 @@ const currentRoute = computed(() => routes.find(route => route.href === location
 <template>
     <div class="centering-container">
         <div class="content">
-            <div class="two-column">
-                <header class="left">
-                    <NavigationMenu :menu="routes" />
-                </header>
-
-                <main class="right">
-                    <div>
-                        <h1>{{ currentRoute.title }}</h1>
-                        <hr />
-                        <component :is="currentRoute.component" />
-                    </div>
-                </main>
-            </div>
+            <header>
+                <NavigationMenu :menu="routes" />
+            </header>
+            <main>
+                <h1>{{ currentRoute.title }}</h1>
+                <hr />
+                <component :is="currentRoute.component" />
+            </main>
         </div>
     </div>
 </template>
@@ -64,19 +59,5 @@ const currentRoute = computed(() => routes.find(route => route.href === location
 .content {
     width: 100%;
     max-width: 35rem;
-}
-
-.two-column {
-    display: flex;
-    flex-direction: row;
-    justify-content: left;
-}
-
-.left {
-    flex-shrink: 0;
-}
-
-.right {
-    width: 100%;
 }
 </style>
