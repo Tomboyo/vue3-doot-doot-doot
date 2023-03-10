@@ -102,7 +102,8 @@
     transition: all 0.2s ease-out;
 }
 
-#header a:hover {
+#header a:hover,
+#header a:focus {
     background-color: var(--bg-back-color);
     color: var(--text-focus-color);
     font-weight: bold;
@@ -133,7 +134,8 @@
     transition: all 0.2s ease-out;
 }
 
-#left-column a:hover {
+#left-column a:hover,
+#left-column a:focus {
     color: var(--text-focus-color)
 }
 
