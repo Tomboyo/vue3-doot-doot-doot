@@ -60,7 +60,8 @@ const furl = event => {
     height of its contents (unfurled). The visibility of all anchors is "hidden"
     unless their tab group is active. We need a "spacer" in the anchor-bar to
     make sure the height of the anchor-bar doesn't become 0 when all anchors are
-    hidden, since this breaks the furl transition. The spacer is zero-width but
+    hidden, since this breaks the furl transition: the height would change from
+    auto to 0, which transitions don't support. The spacer is zero-width but
     otherwise styled the same as other anchors so that its height is exactly
     the same as other anchors.
 -->
