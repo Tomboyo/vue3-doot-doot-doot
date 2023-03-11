@@ -1,28 +1,11 @@
 <script setup>
+import PrimaryNav from './components/PrimaryNav.vue'
 </script>
 
 <template>
     <header id="header">
         <h1 id="title">WEBSITE</h1>
-        <div id="primary-nav">
-            <a href="#foo">Foo</a>
-            <a href="#bar">Bar</a>
-            <a href="#baz">Baz</a>
-        </div>
-        <div id="secondary-nav">
-            <div id="group-foo">
-                <a href="#foo/foo">Foo</a>
-                <a href="#foo/bar">Bar</a>
-            </div>
-            <div id="group-bar">
-                <a href="#bar/bar">Bar</a>
-                <a href="#bar/baz">Baz</a>
-            </div>
-            <div id="group-baz">
-                <a href="#baz/baz">Baz</a>
-                <a href="#baz/foo">Foo</a>
-            </div>
-        </div>
+        <PrimaryNav />
     </header>
     <main>
         <div id="two-column-layout">
@@ -84,33 +67,6 @@
     color: var(--text-color);
 }
 
-#primary-nav {
-    background-color: var(--bg-back-color);
-    box-shadow: inset 0em 0.35em 0.25em -0.25em black;
-}
-
-#secondary-nav {
-    background-color: var(--bg-back-color);
-}
-
-#header a {
-    all: unset;
-    display: inline-block;
-    padding: 0.5em;
-    color: var(--text-color);
-    font-weight: bold;
-    transition: all 0.2s ease-out;
-}
-
-#header a:hover,
-#header a:focus {
-    background-color: var(--bg-back-color);
-    color: var(--text-focus-color);
-    font-weight: bold;
-
-    box-shadow: 0.1em 0.1em 0.25em black;
-}
-
 #two-column-layout {
     display: flex;
     margin-top: 1rem;
@@ -149,8 +105,8 @@ p {
 
 <style global>
 html {
-    --bg-color: #003847;
     --bg-back-color: #00212b;
+    --bg-color: #003847;
     --bg-front-color: #839496;
     --bg-focus-color: #cdcdcd;
     --text-color: #93a1a1;
