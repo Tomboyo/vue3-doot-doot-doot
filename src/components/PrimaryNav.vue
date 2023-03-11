@@ -1,8 +1,8 @@
 <script setup>
 import { computed, ref } from 'vue';
-const nav = [{
+const tabs = [{
     title: "Foo",
-    subnav: [{
+    panel: [{
         href: "#foo/foo",
         title: "Foo Foo"
     }, {
@@ -11,7 +11,7 @@ const nav = [{
     }]
 }, {
     title: "Bar",
-    subnav: [{
+    panel: [{
         href: "#bar/foo",
         title: "Bar Foo"
     }, {
@@ -23,7 +23,7 @@ const nav = [{
     }]
 }, {
     title: "Baz",
-    subnav: [{
+    panel: [{
         href: "#baz/foo",
         title: "Baz Foo"
     }, {
@@ -32,78 +32,134 @@ const nav = [{
     }]
 }]
 
-const active = ref(null);
-// const setActive = (id) => active.value = active.value == id ? null : id
-const setActive = (id) => active.value = id
-const tabindex = (i) => {
-    let preceding = nav.slice(0, i)
-    return preceding.length + preceding.reduce((acc, e) => acc + e.subnav.length, 0) + 1
+const domNav = ref(null)
+const domTabs = ref(null)
+const domPanels = ref(null)
+
+const focusedTab = ref(0)
+
+const activeTabPanel = ref(null)
+const isActiveTabPanel = (i) => activeTabPanel.value === i
+
+const isTabNavigable = (tab) => tab === focusedTab.value
+
+const onNavMouseLeave = (_event) => activeTabPanel.value = null
+const onNavFocusOut = (event) => {
+    if (event.relatedTarget === null || !domNav.value.contains(event.relatedTarget)) {
+        activeTabPanel.value = null
+    }
 }
-const subTabindex = (i, j) => tabindex(i) + j + 1
-const navContainer = ref(null)
-const furl = event => {
-    if (!navContainer.value.contains(event.relatedTarget)) {
-        active.value = null
+
+const onTabMouseOver = (i) => activeTabPanel.value = i
+const onTabKeydown = (event) => {
+    if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
+        if (event.key === 'ArrowRight') {
+            focusedTab.value++
+            if (focusedTab.value == tabs.length) {
+                focusedTab.value = 0
+            }
+        } else {
+            focusedTab.value--
+            if (focusedTab.value < 0) {
+                focusedTab.value = tabs.length - 1
+            }
+        }
+
+        domTabs.value.children[focusedTab.value].focus()
+    } else if (event.key === 'Enter') {
+        activeTabPanel.value = focusedTab.value
     }
 }
 </script>
 
 <!--
-    This is a collection of anchors grouped into tabs, only one of which is
-    visible at a time. Tabs are arranged in the tab-bar, and their nested
-    anchors are arranged below them in the anchor-bar. The anchor bar is hidden
-    by default but "unfurls" beneath the tab-bar when tab groups are active,
-    and "furls" again when no tab groups are active.
+    An accessible, keyboard-navigable tabgroup of anchors.
 
-    The "furl" transition relies on the max-width property of the anchor-bar
-    changing between 0 (furled) and a number at least as large as the expected
-    height of its contents (unfurled). The visibility of all anchors is "hidden"
-    unless their tab group is active. We need a "spacer" in the anchor-bar to
-    make sure the height of the anchor-bar doesn't become 0 when all anchors are
-    hidden, since this breaks the furl transition: the height would change from
-    auto to 0, which transitions don't support. The spacer is zero-width but
-    otherwise styled the same as other anchors so that its height is exactly
-    the same as other anchors.
+    A tab bar holds all tab labels, and below it a panel holds the content of
+    the tab panel. The tab panels contain several anchors each. A given panel of
+    anchors is only visible if its tab is active. Otherwise, the entire panel is
+    hidden. If no tab is active, only the tabs themselves are visible.
+
+    When a tab is activated (by clicking or using the keyboard), the appropriate
+    panel unfurls below the tab bar. When it is deactivated (such as because the
+    nav lost focus), the panel furls back up.
+
+    Anchors are hidden when their panel is hidden so that the user cannot tab to
+    a hidden anchor. (We could choose to tabindex=-1 these anchors instead, but
+    it triggers accessibility warnings for hidden anchors.)
+
+    Because the sudden invisibility of anchors would change the width of the
+    active panel from auto to 0 when the panel is about to close, the transition
+    (based on max-height) would stop working. We currently use a "spacer" panel
+    that becomes visible only when all other tab panels are hidden, which is
+    then furled up. The anchor text still disappears suddenly, but the furl
+    animation is smooth.
 -->
 <template>
-    <div>
-        <div ref="navContainer"
-             @focusout="furl"
-             @mouseleave="furl">
-            <div id="tab-bar">
-                <button v-for="group, i in nav"
-                        class="nav-item"
-                        @focusin="setActive(i)"
-                        @mouseenter="setActive(i)"
-                        :tabindex="tabindex(i)"> {{ group.title }} </button>
+    <div ref="domNav"
+         class="nav"
+         @mouseleave="onNavMouseLeave"
+         @focusout="onNavFocusOut">
+        <div ref="domTabs"
+             role="tabdata"
+             aria-label="Navigation Tabs"
+             @keydown="onTabKeydown">
+            <button v-for="tab, i in tabs"
+                    @mouseover="onTabMouseOver(i)"
+                    @mousedown="event => event.preventDefault()"
+                    :id="'tab-' + i"
+                    role="tab"
+                    class="tab"
+                    :class="isActiveTabPanel(i) ? 'active' : false"
+                    :aria-selected="isActiveTabPanel(i)"
+                    :tabindex="isTabNavigable(i) ? 0 : -1"
+                    :aria-controls="'panel-' + i">{{ tab.title }}</button>
+        </div>
+        <div ref="domPanels"
+             class="tabpanels"
+             :class="isActiveTabPanel(null) ? 'furl' : 'unfurl'">
+            <div v-for="tab, i in tabs"
+                 :id="'panel-' + i"
+                 role="tabpanel"
+                 class="tabpanel"
+                 :tabindex="-1"
+                 :aria-labelledby="'tab-' + i">
+                <!-- :tabindex="isActiveTabPanel(i) ? 0 : -1" -->
+                <a v-for="link in tab.panel"
+                   v-show="isActiveTabPanel(i)"
+                   class="link"
+                   :href="link.href">{{ link.title }}</a>
             </div>
-            <div class="anchor-bar"
-                 :class="active === null ? '' : 'unfurl'">
-                <a id="spacer"
-                   class="nav-item">u{200B}</a>
-                <template v-for="group, i in nav">
-                    <a v-for="link, j in group.subnav"
-                       class="nav-item"
-                       :href="link.href"
-                       :tabindex="subTabindex(i, j)"
-                       v-show="active === i"> {{ link.title }} </a>
-                </template>
+            <!-- Spacer to ensure the furl transition is smooth and links are
+                             hidden from the dom when their tab is not active. -->
+            <div class="tabpanel"
+                 v-show="isActiveTabPanel(null)">
+                <div class="link"
+                     role="presentation"
+                     tabindex="-1">&#8203;</div>
             </div>
         </div>
     </div>
 </template>
 
 <style scoped>
-#tab-bar {
+.nav {
     background-color: var(--bg-back-color);
     box-shadow: inset 0em 0.35em 0.25em -0.25em black;
 }
 
-.anchor-bar {
-    max-height: 0;
+.tabpanels {
     transition: all 0.2s ease-out;
-    overflow: hidden;
     background-color: var(--bg-back-color);
+}
+
+.tabpanel {
+    position: relative
+}
+
+.furl {
+    max-height: 0;
+    overflow: hidden;
 }
 
 .unfurl {
@@ -112,13 +168,8 @@ const furl = event => {
     max-height: 3rem;
 }
 
-.nav-item {
-    border: unset;
-    background-color: unset;
-    font: unset;
-    text-decoration: unset;
-    outline: unset;
-
+.tab,
+.link {
     display: inline-block;
     padding: 0.5em;
     color: var(--text-color);
@@ -127,19 +178,26 @@ const furl = event => {
     transition: all 0.2s ease-out;
 }
 
-.nav-item:hover,
-.nav-item:focus {
-    background-color: var(--bg-color);
-    color: var(--text-focus-color);
-    font-weight: bold;
-
-    border-left-color: var(--bg-color-front);
+.tab {
+    background-color: unset;
+    font: unset;
 }
 
-#spacer {
-    visibility: hidden;
-    padding-left: 0;
-    padding-right: 0;
-    inline-size: 0;
+.link {
+    text-decoration: unset;
+}
+
+.tab.active {
+    background-color: var(--bg-color)
+}
+
+.tab:focus,
+.tab:hover,
+.link:focus,
+.link:hover {
+    outline: unset;
+    background-color: var(--bg-color);
+    color: var(--text-focus-color);
+    border-left-color: var(--bg-color-front);
 }
 </style>
