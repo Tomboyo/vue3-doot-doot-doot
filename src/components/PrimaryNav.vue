@@ -1,5 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue';
+import { useShelf } from './shelf.js'
+
 const tabs = [{
     title: "Foo",
     panel: [{
@@ -36,40 +38,19 @@ const domNav = ref(null)
 const domTabs = ref(null)
 const domPanels = ref(null)
 
-const focusedTab = ref(0)
+const {
+    focused: focusedTab,
+    selected: selectedTab,
+    select: selectTab,
+    clear: clearTab
+} = useShelf(domTabs)
 
-const activeTabPanel = ref(null)
-const isActiveTabPanel = (i) => activeTabPanel.value === i
-
-const isTabNavigable = (tab) => tab === focusedTab.value
-
-const onNavMouseLeave = (_event) => activeTabPanel.value = null
 const onNavFocusOut = (event) => {
     if (event.relatedTarget === null || !domNav.value.contains(event.relatedTarget)) {
-        activeTabPanel.value = null
+        clearTab()
     }
 }
 
-const onTabMouseOver = (i) => activeTabPanel.value = i
-const onTabKeydown = (event) => {
-    if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
-        if (event.key === 'ArrowRight') {
-            focusedTab.value++
-            if (focusedTab.value == tabs.length) {
-                focusedTab.value = 0
-            }
-        } else {
-            focusedTab.value--
-            if (focusedTab.value < 0) {
-                focusedTab.value = tabs.length - 1
-            }
-        }
-
-        domTabs.value.children[focusedTab.value].focus()
-    } else if (event.key === 'Enter') {
-        activeTabPanel.value = focusedTab.value
-    }
-}
 </script>
 
 <!--
@@ -98,42 +79,39 @@ const onTabKeydown = (event) => {
 <template>
     <div ref="domNav"
          class="nav"
-         @mouseleave="onNavMouseLeave"
+         @mouseleave="clearTab"
          @focusout="onNavFocusOut">
         <div ref="domTabs"
              role="tabdata"
-             aria-label="Navigation Tabs"
-             @keydown="onTabKeydown">
+             aria-label="Navigation Tabs">
             <button v-for="tab, i in tabs"
-                    @mouseover="onTabMouseOver(i)"
+                    @mouseover="selectTab({ which: i })"
                     @mousedown="event => event.preventDefault()"
                     :id="'tab-' + i"
                     role="tab"
                     class="tab"
-                    :class="isActiveTabPanel(i) ? 'active' : false"
-                    :aria-selected="isActiveTabPanel(i)"
-                    :tabindex="isTabNavigable(i) ? 0 : -1"
+                    :class="selectedTab === i ? 'active' : false"
+                    :aria-selected="selectedTab === i ? 'true' : 'false'"
+                    :tabindex="focusedTab === i ? 0 : -1"
                     :aria-controls="'panel-' + i">{{ tab.title }}</button>
         </div>
         <div ref="domPanels"
              class="tabpanels"
-             :class="isActiveTabPanel(null) ? 'furl' : 'unfurl'">
+             :class="selectedTab === null ? 'furl' : 'unfurl'">
             <div v-for="tab, i in tabs"
                  :id="'panel-' + i"
                  role="tabpanel"
                  class="tabpanel"
                  :tabindex="-1"
                  :aria-labelledby="'tab-' + i">
-                <!-- :tabindex="isActiveTabPanel(i) ? 0 : -1" -->
                 <a v-for="link in tab.panel"
-                   v-show="isActiveTabPanel(i)"
+                   v-show="selectedTab === i"
                    class="link"
                    :href="link.href">{{ link.title }}</a>
             </div>
-            <!-- Spacer to ensure the furl transition is smooth and links are
-                             hidden from the dom when their tab is not active. -->
+            <!-- Spacer to ensure the furl transition is smooth and links are hidden from the dom when their tab is not active. -->
             <div class="tabpanel"
-                 v-show="isActiveTabPanel(null)">
+                 v-show="selectedTab === null">
                 <div class="link"
                      role="presentation"
                      tabindex="-1">&#8203;</div>
