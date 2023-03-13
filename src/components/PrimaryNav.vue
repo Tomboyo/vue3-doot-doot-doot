@@ -173,7 +173,6 @@ const onNavFocusOut = (event) => {
 .tab:hover,
 .link:focus,
 .link:hover {
-    outline: unset;
     background-color: var(--bg-color);
     color: var(--text-focus-color);
     border-left-color: var(--bg-color-front);

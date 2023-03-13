@@ -44,7 +44,11 @@ export function useShelf(refShelf) {
 
                 refShelf.value.children[focused.value].focus()
             } else if (event.key === 'Enter') {
-                selected.value = focused.value
+                if (selected.value === focused.value) {
+                    selected.value = null;
+                } else {
+                    selected.value = focused.value
+                }
             }
         }))
 
