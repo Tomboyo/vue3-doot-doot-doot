@@ -85,7 +85,7 @@ const onNavFocusOut = (event) => {
              role="tabdata"
              aria-label="Navigation Tabs">
             <button v-for="tab, i in tabs"
-                    @mouseover="selectTab({ which: i })"
+                    @mouseover="selectTab(i)"
                     @mousedown="event => event.preventDefault()"
                     :id="'tab-' + i"
                     role="tab"
