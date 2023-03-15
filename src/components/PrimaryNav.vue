@@ -1,5 +1,9 @@
+<!--
+    The primary site navigation, as a tab-group of links.
+-->
+
 <script setup>
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
 import { useShelf } from './shelf.js'
 
 const tabs = [{
@@ -53,29 +57,6 @@ const onNavFocusOut = (event) => {
 
 </script>
 
-<!--
-    An accessible, keyboard-navigable tabgroup of anchors.
-
-    A tab bar holds all tab labels, and below it a panel holds the content of
-    the tab panel. The tab panels contain several anchors each. A given panel of
-    anchors is only visible if its tab is active. Otherwise, the entire panel is
-    hidden. If no tab is active, only the tabs themselves are visible.
-
-    When a tab is activated (by clicking or using the keyboard), the appropriate
-    panel unfurls below the tab bar. When it is deactivated (such as because the
-    nav lost focus), the panel furls back up.
-
-    Anchors are hidden when their panel is hidden so that the user cannot tab to
-    a hidden anchor. (We could choose to tabindex=-1 these anchors instead, but
-    it triggers accessibility warnings for hidden anchors.)
-
-    Because the sudden invisibility of anchors would change the width of the
-    active panel from auto to 0 when the panel is about to close, the transition
-    (based on max-height) would stop working. We currently use a "spacer" panel
-    that becomes visible only when all other tab panels are hidden, which is
-    then furled up. The anchor text still disappears suddenly, but the furl
-    animation is smooth.
--->
 <template>
     <div ref="domNav"
          class="nav"
@@ -86,7 +67,6 @@ const onNavFocusOut = (event) => {
              aria-label="Navigation Tabs">
             <button v-for="tab, i in tabs"
                     @mouseover="selectTab(i)"
-                    @mousedown="event => event.preventDefault()"
                     :id="'tab-' + i"
                     role="tab"
                     class="tab"
