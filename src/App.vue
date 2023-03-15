@@ -1,5 +1,13 @@
 <script setup>
 import PrimaryNav from './components/PrimaryNav.vue'
+import SubNav from './components/SubNav.vue'
+
+const headings = [
+    { href: '#h1', title: '1 Heading' },
+    [{ href: '#h1.1', title: '1.1 Heading' }],
+    { href: '#h2', title: '2 Heading' },
+    { href: '#h3', title: '3 Heading' }
+]
 </script>
 
 <template>
@@ -9,21 +17,11 @@ import PrimaryNav from './components/PrimaryNav.vue'
     </header>
     <main>
         <div id="two-column-layout">
-            <div id="left-column">
-                <nav>
-                    <ul>
-                        <li><a href="">1 Heading</a></li>
-                        <ul>
-                            <li><a href="">1.1 Sub-Heading</a></li>
-                        </ul>
-                        <li><a href="">2 Heading</a></li>
-                        <li><a href="">3 Heading</a></li>
-                    </ul>
-                </nav>
-            </div>
+            <SubNav class="left-column"
+                    :data="headings" />
             <div id="right-column">
-                <h1>1 Heading</h1>
-                <h2>1.1 Sub-Heading</h2>
+                <h1 id="h1">1 Heading</h1>
+                <h2 id="h1.1">1.1 Sub-Heading</h2>
                 <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque
                     non lorem bibendum, consectetur mauris non, efficitur nisi.
                     Quisque iaculis, nulla a pharetra posuere, ipsum ante suscipit
@@ -54,7 +52,7 @@ import PrimaryNav from './components/PrimaryNav.vue'
                     massa ac posuere hendrerit, justo ipsum semper lacus, sed
                     vehicula tellus massa in lectus. Morbi gravida risus ac purus
                     placerat tempor.</p>
-                <h1>2 Heading</h1>
+                <h1 id="h2">2 Heading</h1>
                 <p>Integer eu velit nec erat tincidunt auctor. Nunc a fermentum
                     turpis, id pharetra sapien. Fusce in nisi rhoncus, faucibus elit
                     at, sagittis justo. Curabitur lacinia dui vel accumsan cursus.
@@ -67,7 +65,7 @@ import PrimaryNav from './components/PrimaryNav.vue'
                     at, finibus libero. Sed et libero risus. Nunc pellentesque dui
                     mattis nibh fringilla, quis placerat elit accumsan. Nullam
                     eleifend posuere mauris.</p>
-                <h3>3 Heading</h3>
+                <h1 id="h3">3 Heading</h1>
                 <p>Phasellus quis massa fermentum, ultricies nibh sit amet, mollis
                     sem. Sed ut pretium justo. Maecenas euismod lorem metus. Mauris
                     molestie at turpis eu dignissim. Sed quam mi, posuere sit amet
@@ -91,27 +89,12 @@ import PrimaryNav from './components/PrimaryNav.vue'
     margin-top: 1rem;
 }
 
-#left-column {
+.left-column {
     background-color: var(--bg-back-color);
     box-shadow: inset 0em 0.35em 0.25em -0.25em black;
     margin-right: 1em;
     padding-left: 0.5em;
     padding-right: 1em;
-}
-
-#left-column ul {
-    padding-left: 1.5em;
-}
-
-#left-column a {
-    text-decoration: unset;
-    color: var(--text-color);
-    transition: all 0.2s ease-out;
-}
-
-#left-column a:hover,
-#left-column a:focus {
-    color: var(--text-focus-color)
 }
 
 #right-column h1,
